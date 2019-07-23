@@ -1,11 +1,14 @@
 {
-  "name": "react-snap",
+  "name": "@arcadian-digital/react-snap",
   "version": "1.23.0",
   "description": "Zero-configuration framework-agnostic static prerendering for SPAs",
   "main": "index.js",
   "author": "stereobooster",
   "license": "MIT",
-  "repository": "stereobooster/react-snap",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arcadian-group/react-snap"
+  },
   "engines": {
     "node": ">= 8.6.0"
   },
