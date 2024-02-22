@@ -51,6 +51,7 @@ const defaultOptions = {
   removeBlobs: true,
   fixInsertRule: true,
   skipThirdPartyRequests: false,
+  allowedThirdPartyRequests: [],
   cacheAjaxRequests: false,
   http2PushManifest: false,
   // may use some glob solution in the future, if required
@@ -270,7 +271,10 @@ const inlineCss = async opt => {
   const minimalcssResult = await minimalcss.minimize({
     urls: [pageUrl],
     skippable: request =>
-      options.skipThirdPartyRequests && !request.url().startsWith(basePath),
+      options.skipThirdPartyRequests && (
+        !request.url().startsWith(basePath)
+        && !options.allowedThirdPartyRequests.some((allowedDomain) => request.url().startsWith(allowedDomain))
+      ),
     browser: browser,
     userAgent: options.userAgent
   });

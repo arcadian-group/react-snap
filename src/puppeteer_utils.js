@@ -20,7 +20,10 @@ const skipThirdPartyRequests = async opt => {
   if (!options.skipThirdPartyRequests) return;
   await page.setRequestInterception(true);
   page.on("request", request => {
-    if (request.url().startsWith(basePath)) {
+    if (
+      request.url().startsWith(basePath)
+      || options.allowedThirdPartyRequests.some((allowedDomain) => request.url().startsWith(allowedDomain))
+    ) {
       request.continue();
     } else {
       request.abort();
@@ -199,6 +202,7 @@ const crawl = async opt => {
     args: options.puppeteerArgs,
     executablePath: options.puppeteerExecutablePath,
     ignoreHTTPSErrors: options.puppeteerIgnoreHTTPSErrors,
+    devtools: true,
     handleSIGINT: false
   });
 
@@ -238,10 +242,14 @@ const crawl = async opt => {
         await page.setUserAgent(options.userAgent);
         const tracker = createTracker(page);
         try {
-          await page.goto(pageUrl, { waitUntil: "load", timeout: 0 });
+          await page.goto(pageUrl, { waitUntil: "load", timeout: 30000 });
         } catch (e) {
-          e.message = augmentTimeoutError(e.message, tracker);
-          throw e;
+          if (tracker.urls().length) {
+            e.message = augmentTimeoutError(e.message, tracker);
+            throw e;
+          } else {
+            console.error('Got timeout but no URLs are loading');
+          }
         } finally {
           tracker.dispose();
         }
